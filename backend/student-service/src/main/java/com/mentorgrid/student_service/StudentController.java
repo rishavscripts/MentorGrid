@@ -1,7 +1,11 @@
 package com.mentorgrid.student_service;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -30,10 +34,11 @@ public class StudentController {
     public record StudentProfileRequest(
             @NotBlank String fullName,
             @NotBlank String department,
-            String semester,
-            String rollNumber,
-            String phone,
-            String mentorCode
+            @NotNull @Min(1) @Max(5) Integer year,
+            @NotNull @Min(1) @Max(10) Integer semester,
+            @JsonAlias({"universityRollNumber", "rollNo"}) String rollNumber,
+            @JsonAlias({"phoneNumber", "mobile"}) String phone,
+            @JsonAlias({"mentorId", "teacherId", "displayId"}) String mentorCode
     ) {}
 
     public record AssignMentorRequest(
@@ -71,6 +76,7 @@ public class StudentController {
 
         profile.setFullName(req.fullName().trim());
         profile.setDepartment(req.department().trim());
+        profile.setYear(req.year());
         profile.setSemester(req.semester());
         profile.setRollNumber(req.rollNumber());
         profile.setPhone(req.phone());

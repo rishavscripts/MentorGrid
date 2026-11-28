@@ -18,7 +18,8 @@ export default function StudentProfilePage() {
     fullName: '',
     department: '',
     rollNumber: '',
-    batchYear: '',
+    year: '',
+    semester: '',
     phone: '',
     email: user?.email || '',
     mentorDisplayId: '',
@@ -32,9 +33,21 @@ export default function StudentProfilePage() {
 
         if (user?.profileCompleted) {
           const existing = await studentApi.getMyProfile();
-          if (existing) setForm(existing);
+          if (existing) {
+            setForm({
+              fullName: existing.fullName || '',
+              department: existing.department || '',
+              rollNumber: existing.rollNumber || '',
+              year: existing.year ?? '',
+              semester: existing.semester ?? '',
+              phone: existing.phone || '',
+              email: existing.email || user?.email || '',
+              mentorDisplayId: existing.mentorDisplayId || existing.mentorCode || '',
+            });
+          }
         } else if (mentorList.length > 0) {
-          setForm((prev) => ({ ...prev, mentorDisplayId: mentorList[0].displayId }));
+          const defaultMentorId = mentorList[0].displayId || mentorList[0].teacherCode || '';
+          setForm((prev) => ({ ...prev, mentorDisplayId: defaultMentorId }));
         }
       } catch (err) {
         setError('Unable to load mentor directory from Teacher Service.');
@@ -50,11 +63,20 @@ export default function StudentProfilePage() {
     setError('');
     setSaving(true);
     try {
-      const saved = await studentApi.saveMyProfile(form);
-      updateUserSession({ displayId: saved.displayId, profileCompleted: true });
+      const payload = {
+        ...form,
+        year: parseInt(form.year, 10),
+        semester: parseInt(form.semester, 10),
+        mentorCode: form.mentorDisplayId,
+      };
+      const saved = await studentApi.saveMyProfile(payload);
+      updateUserSession({
+        displayId: saved.displayId || saved.studentCode,
+        profileCompleted: true,
+      });
       navigate('/student/dashboard');
     } catch (err) {
-      setError(err.response?.data?.detail || 'Failed to save student profile.');
+      setError(err.response?.data?.detail || err.response?.data?.message || 'Failed to save student profile.');
     } finally {
       setSaving(false);
     }
@@ -112,12 +134,30 @@ export default function StudentProfilePage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Batch / Semester *</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Year *</label>
                   <input
+                    type="number"
+                    min={1}
+                    max={5}
+                    step={1}
                     required
-                    value={form.batchYear}
-                    onChange={(e) => setForm({ ...form, batchYear: e.target.value })}
-                    placeholder="e.g., 4th Year / Sem 7"
+                    value={form.year}
+                    onChange={(e) => setForm({ ...form, year: e.target.value })}
+                    placeholder="e.g., 4"
+                    className="w-full rounded-lg border border-slate-300 px-3.5 py-2 text-sm focus:border-indigo-500 focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Semester *</label>
+                  <input
+                    type="number"
+                    min={1}
+                    max={10}
+                    step={1}
+                    required
+                    value={form.semester}
+                    onChange={(e) => setForm({ ...form, semester: e.target.value })}
+                    placeholder="e.g., 7"
                     className="w-full rounded-lg border border-slate-300 px-3.5 py-2 text-sm focus:border-indigo-500 focus:outline-none"
                   />
                 </div>
@@ -131,7 +171,7 @@ export default function StudentProfilePage() {
                     className="w-full rounded-lg border border-slate-300 px-3.5 py-2 text-sm focus:border-indigo-500 focus:outline-none"
                   />
                 </div>
-                <div>
+                <div className="sm:col-span-2">
                   <label className="block text-xs font-semibold text-slate-700 mb-1">Email Address *</label>
                   <input
                     type="email"
@@ -161,15 +201,18 @@ export default function StudentProfilePage() {
                     <option value="" disabled>
                       -- Choose Faculty Mentor --
                     </option>
-                    {mentors.map((m) => (
-                      <option key={m.displayId} value={m.displayId}>
-                        {m.fullName} — {m.department} ({m.displayId})
-                      </option>
-                    ))}
+                    {mentors.map((m) => {
+                      const code = m.displayId || m.teacherCode;
+                      return (
+                        <option key={code} value={code}>
+                          {m.fullName} — {m.department} ({code})
+                        </option>
+                      );
+                    })}
                   </select>
                 )}
                 <p className="mt-1.5 text-xs text-slate-600">
-                  Your profile will immediately appear on this mentor&apos;s control board.
+                  Your profile will immediately appear on this mentor's control board.
                 </p>
               </div>
 

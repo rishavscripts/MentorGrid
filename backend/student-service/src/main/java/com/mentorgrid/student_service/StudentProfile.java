@@ -24,7 +24,11 @@ public class StudentProfile {
     @Column(nullable = false)
     private String department;
 
-    private String semester;
+    @Column(name = "academic_year")
+    private Integer year;
+
+    @Column(name = "semester")
+    private Integer semester;
 
     private String rollNumber;
 
@@ -54,8 +58,11 @@ public class StudentProfile {
     public String getDepartment() { return department; }
     public void setDepartment(String department) { this.department = department; }
 
-    public String getSemester() { return semester; }
-    public void setSemester(String semester) { this.semester = semester; }
+    public Integer getYear() { return year; }
+    public void setYear(Integer year) { this.year = year; }
+
+    public Integer getSemester() { return semester; }
+    public void setSemester(Integer semester) { this.semester = semester; }
 
     public String getRollNumber() { return rollNumber; }
     public void setRollNumber(String rollNumber) { this.rollNumber = rollNumber; }

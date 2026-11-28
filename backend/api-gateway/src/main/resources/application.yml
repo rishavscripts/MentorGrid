@@ -11,26 +11,21 @@ spring:
       - optional:file:backend/.env[.properties]
   cloud:
     gateway:
-      globalcors:
-        cors-configurations:
-          '[/**]':
-            allowedOrigins: "http://localhost:5173"
-            allowedMethods: "*"
-            allowedHeaders: "*"
-            allowCredentials: true
-      routes:
-        - id: auth-service
-          uri: lb://auth-service
-          predicates:
-            - Path=/api/auth/**
-        - id: student-service
-          uri: lb://student-service
-          predicates:
-            - Path=/api/students/**
-        - id: teacher-service
-          uri: lb://teacher-service
-          predicates:
-            - Path=/api/teachers/**
+      server:
+        webflux:
+          routes:
+            - id: auth-service
+              uri: lb://auth-service
+              predicates:
+                - Path=/api/auth/**
+            - id: student-service
+              uri: lb://student-service
+              predicates:
+                - Path=/api/students/**
+            - id: teacher-service
+              uri: lb://teacher-service
+              predicates:
+                - Path=/api/teachers/**
 
 eureka:
   client:
