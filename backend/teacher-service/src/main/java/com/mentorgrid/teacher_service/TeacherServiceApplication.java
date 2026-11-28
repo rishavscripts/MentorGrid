@@ -3,6 +3,12 @@ package com.mentorgrid.teacher_service;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.client.loadbalancer.LoadBalanced;
+import org.springframework.context.annotation.Bean;
+import org.springframework.web.client.RestClient;
+
 @SpringBootApplication
 public class TeacherServiceApplication {
 
@@ -10,4 +16,9 @@ public class TeacherServiceApplication {
 		SpringApplication.run(TeacherServiceApplication.class, args);
 	}
 
+	@Bean
+	@LoadBalanced
+	public RestClient.Builder loadBalancedRestClientBuilder() {
+		return RestClient.builder();
+	}
 }

@@ -5,7 +5,10 @@ spring:
   application:
     name: teacher-service
   config:
-    import: optional:file:../.env[.properties]
+    import:
+      - optional:file:.env[.properties]
+      - optional:file:../.env[.properties]
+      - optional:file:backend/.env[.properties]
   datasource:
     url: jdbc:postgresql://localhost:5432/mentorgrid?currentSchema=teacher
     username: ${DB_USERNAME}
